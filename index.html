@@ -79,26 +79,27 @@ function handleEnterReviewMode() {
     alert("저장된 기록이 없습니다.");
     return;
   }
-
-  allQuizzes = stored;
-
+  
+  // 기존 allQuizzes와 새로 불러온 stored를 합쳐서 누적
+  const existingIds = new Set(allQuizzes.map(q => q.question));
+  stored.forEach(q => {
+    if (!existingIds.has(q.question)) {
+      allQuizzes.push(q);
+    }
+  });
+  
   document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
   document.getElementById('review-screen').classList.add('active');
-
   const list = document.getElementById('review-list');
   list.innerHTML = '';
-
   const wrongs = allQuizzes.filter(q => q.is_correct_answered === false);
-
   if (wrongs.length === 0) {
     list.innerHTML = "<div>틀린 문제가 없습니다!</div>";
     return;
   }
-
   wrongs.forEach((q, idx) => {
     const correctOption = q.options.find(o => o.is_correct);
     const correctText = correctOption ? correctOption.text : "-";
-
     const div = document.createElement('div');
     div.className = 'review-item';
     div.innerHTML = `
@@ -109,6 +110,8 @@ function handleEnterReviewMode() {
     `;
     list.appendChild(div);
   });
+  
+  alert(`오답 문제 ${wrongs.length}개가 저장되었습니다.`);
 }
 </script>
 </body>
